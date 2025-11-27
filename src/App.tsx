@@ -984,170 +984,273 @@
 // ===========================================================================================================
 
 
-import { useState, useEffect, FormEvent } from "react";
-import "./App.css";
+// import { useState, useEffect, FormEvent } from "react";
+// import "./App.css";
 
-const API_URL = "https://crud-final-nu.vercel.app/api/items";
+// const API_URL = "https://crud-final-nu.vercel.app/api/items";
+
+// interface Item {
+//   id: number;
+//   name: string;
+//   quantity: number;
+//   description: string | null;
+// }
+
+// function App() {
+//   const [items, setItems] = useState<Item[]>([]);
+//   const [name, setName] = useState("");
+//   const [quantity, setQuantity] = useState(1);
+//   const [description, setDescription] = useState("");
+//   const [editingItem, setEditingItem] = useState<Item | null>(null);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     fetchItems();
+//   }, []);
+
+//   const fetchItems = async () => {
+//     setLoading(true);
+//     try {
+//       const response = await fetch(API_URL);
+//       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+//       const data: Item[] = await response.json();
+//       console.log("Fetched items:", data);
+//       setItems(data);
+//     } catch (error) {
+//       console.error("Failed to fetch items:", error);
+//       setItems([]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const resetForm = () => {
+//     setName("");
+//     setQuantity(1);
+//     setDescription("");
+//     setEditingItem(null);
+//   };
+
+//   const handleSubmit = async (e: FormEvent) => {
+//     e.preventDefault();
+//     const itemData = { name, quantity, description: description.trim() || null };
+
+//     try {
+//       let response;
+//       if (editingItem) {
+//         response = await fetch(`${API_URL}/${editingItem.id}`, {
+//           method: "PUT",
+//           headers: { "Content-Type": "application/json" },
+//           body: JSON.stringify(itemData),
+//         });
+//       } else {
+//         response = await fetch(API_URL, {
+//           method: "POST",
+//           headers: { "Content-Type": "application/json" },
+//           body: JSON.stringify(itemData),
+//         });
+//       }
+
+//       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+//       const savedItem: Item = await response.json();
+
+//       if (editingItem) {
+//         setItems(items.map((item) => (item.id === savedItem.id ? savedItem : item)));
+//       } else {
+//         setItems([...items, savedItem]);
+//       }
+
+//       resetForm();
+//     } catch (error) {
+//       console.error("Failed to save item:", error);
+//     }
+//   };
+
+//   const handleEdit = (item: Item) => {
+//     setEditingItem(item);
+//     setName(item.name);
+//     setQuantity(item.quantity);
+//     setDescription(item.description || "");
+//   };
+
+//   const handleDelete = async (id: number) => {
+//     if (!window.confirm("Are you sure you want to delete this item?")) return;
+//     try {
+//       const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+//       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+//       setItems(items.filter((item) => item.id !== id));
+//     } catch (error) {
+//       console.error("Failed to delete item:", error);
+//     }
+//   };
+
+//   return (
+//     <div className="App">
+//       <h1>Inventory Management</h1>
+
+//       <form onSubmit={handleSubmit} className="item-form">
+//         <h3>{editingItem ? "Edit Item" : "Add New Item"}</h3>
+//         <input
+//           type="text"
+//           placeholder="Item Name"
+//           value={name}
+//           onChange={(e) => setName(e.target.value)}
+//           required
+//         />
+//         <input
+//           type="number"
+//           placeholder="Quantity"
+//           value={quantity}
+//           onChange={(e) => setQuantity(Number(e.target.value))}
+//           min={0}
+//           required
+//         />
+//         <textarea
+//           placeholder="Description"
+//           value={description}
+//           onChange={(e) => setDescription(e.target.value)}
+//         />
+//         <button type="submit">{editingItem ? "Update Item" : "Add Item"}</button>
+//         {editingItem && <button type="button" onClick={resetForm}>Cancel</button>}
+//       </form>
+
+//       <div className="item-list">
+//         <h2>Inventory Items</h2>
+//         {loading ? (
+//           <p>Loading items...</p>
+//         ) : items.length === 0 ? (
+//           <p>No items found.</p>
+//         ) : (
+//           <table>
+//             <thead>
+//               <tr>
+//                 <th>Name</th>
+//                 <th>Quantity</th>
+//                 <th>Description</th>
+//                 <th>Actions</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {items.map((item) => (
+//                 <tr key={item.id}>
+//                   <td>{item.name}</td>
+//                   <td>{item.quantity}</td>
+//                   <td>{item.description || "N/A"}</td>
+//                   <td>
+//                     <button onClick={() => handleEdit(item)}>Edit</button>
+//                     <button onClick={() => handleDelete(item.id)}>Delete</button>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default App;
+
+
+
+
+import { useState, useEffect } from "react";
 
 interface Item {
   id: number;
   name: string;
   quantity: number;
-  description: string | null;
+  description: string;
 }
 
-function App() {
+const API_URL = "https://crud-final-nu.vercel.app/api/items"; // replace with your Vercel URL
+
+export default function App() {
   const [items, setItems] = useState<Item[]>([]);
   const [name, setName] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [description, setDescription] = useState("");
-  const [editingItem, setEditingItem] = useState<Item | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  // Fetch all items
+  const fetchItems = async () => {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    setItems(data);
+  };
 
   useEffect(() => {
     fetchItems();
   }, []);
 
-  const fetchItems = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data: Item[] = await response.json();
-      console.log("Fetched items:", data);
-      setItems(data);
-    } catch (error) {
-      console.error("Failed to fetch items:", error);
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetForm = () => {
-    setName("");
-    setQuantity(1);
-    setDescription("");
-    setEditingItem(null);
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
+  // Add or update item
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const itemData = { name, quantity, description: description.trim() || null };
-
-    try {
-      let response;
-      if (editingItem) {
-        response = await fetch(`${API_URL}/${editingItem.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(itemData),
-        });
-      } else {
-        response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(itemData),
-        });
-      }
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const savedItem: Item = await response.json();
-
-      if (editingItem) {
-        setItems(items.map((item) => (item.id === savedItem.id ? savedItem : item)));
-      } else {
-        setItems([...items, savedItem]);
-      }
-
-      resetForm();
-    } catch (error) {
-      console.error("Failed to save item:", error);
+    if (editingId) {
+      await fetch(API_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingId, name, quantity, description }),
+      });
+      setEditingId(null);
+    } else {
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, quantity, description }),
+      });
     }
+    setName("");
+    setQuantity(0);
+    setDescription("");
+    fetchItems();
   };
 
   const handleEdit = (item: Item) => {
-    setEditingItem(item);
+    setEditingId(item.id);
     setName(item.name);
     setQuantity(item.quantity);
     setDescription(item.description || "");
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
-    try {
-      const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      setItems(items.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error("Failed to delete item:", error);
-    }
+    await fetch(`${API_URL}?id=${id}`, { method: "DELETE" });
+    fetchItems();
   };
 
   return (
-    <div className="App">
-      <h1>Inventory Management</h1>
-
-      <form onSubmit={handleSubmit} className="item-form">
-        <h3>{editingItem ? "Edit Item" : "Add New Item"}</h3>
-        <input
-          type="text"
-          placeholder="Item Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          type="number"
-          placeholder="Quantity"
-          value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
-          min={0}
-          required
-        />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <button type="submit">{editingItem ? "Update Item" : "Add Item"}</button>
-        {editingItem && <button type="button" onClick={resetForm}>Cancel</button>}
+    <div style={{ maxWidth: 600, margin: "auto" }}>
+      <h1>Inventory</h1>
+      <form onSubmit={handleSubmit}>
+        <input placeholder="Name" value={name} onChange={e => setName(e.target.value)} required />
+        <input type="number" placeholder="Quantity" value={quantity} onChange={e => setQuantity(Number(e.target.value))} required />
+        <input placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
+        <button type="submit">{editingId ? "Update" : "Add"}</button>
       </form>
-
-      <div className="item-list">
-        <h2>Inventory Items</h2>
-        {loading ? (
-          <p>Loading items...</p>
-        ) : items.length === 0 ? (
-          <p>No items found.</p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Quantity</th>
-                <th>Description</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.name}</td>
-                  <td>{item.quantity}</td>
-                  <td>{item.description || "N/A"}</td>
-                  <td>
-                    <button onClick={() => handleEdit(item)}>Edit</button>
-                    <button onClick={() => handleDelete(item.id)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <table border={1} cellPadding={5} style={{ marginTop: 20, width: "100%" }}>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map(item => (
+            <tr key={item.id}>
+              <td>{item.name}</td>
+              <td>{item.quantity}</td>
+              <td>{item.description}</td>
+              <td>
+                <button onClick={() => handleEdit(item)}>Edit</button>
+                <button onClick={() => handleDelete(item.id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
-
-export default App;
