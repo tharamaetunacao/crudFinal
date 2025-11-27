@@ -71,35 +71,37 @@
 import express from "express";
 import cors from "cors";
 import mysql from "mysql2/promise";
+import 'dotenv/config';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ===== MySQL Connection Pool =====
+// ===== MySQL Connection Pool (using env variables for Railway) =====
 const db = mysql.createPool({
-  host: "localhost",
-  user: "root", 
-  password: "",       
-  database: "inventory_db",
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
 });
 
+
+
 // ===== Root Test Route =====
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("✅ Backend is running!");
 });
 
 // ===== Inventory CRUD =====
 
 // GET all items
-app.get("/api/items", async (req, res) => {
+app.get("/api/items", async (_req, res) => {
   try {
     const [rows]: any = await db.query("SELECT * FROM items");
-    console.log("Fetched items:", rows);
-    if (!Array.isArray(rows)) throw new Error("Database did not return an array");
     res.json(rows);
   } catch (error: any) {
     console.error("Error fetching items:", error);
@@ -168,7 +170,5 @@ app.delete("/api/items/:id", async (req, res) => {
 });
 
 // ===== Start Server =====
-const PORT = 4000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
