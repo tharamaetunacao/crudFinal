@@ -1165,7 +1165,7 @@ interface Item {
   description: string;
 }
 
-const API_URL = "https://crud-final-nu.vercel.app/api/items"; // replace with your Vercel URL
+const API_URL = "https://crud-final-nu.vercel.app/api/items"; // replace with your Vercel API URL
 
 export default function App() {
   const [items, setItems] = useState<Item[]>([]);
@@ -1176,9 +1176,13 @@ export default function App() {
 
   // Fetch all items
   const fetchItems = async () => {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    setItems(data);
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      setItems(data);
+    } catch (err) {
+      console.error("Error fetching items:", err);
+    }
   };
 
   useEffect(() => {
@@ -1188,26 +1192,31 @@ export default function App() {
   // Add or update item
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      await fetch(API_URL, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: editingId, name, quantity, description }),
-      });
-      setEditingId(null);
-    } else {
-      await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, quantity, description }),
-      });
+    try {
+      if (editingId) {
+        await fetch(API_URL, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editingId, name, quantity, description }),
+        });
+        setEditingId(null);
+      } else {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, quantity, description }),
+        });
+      }
+      setName("");
+      setQuantity(0);
+      setDescription("");
+      fetchItems();
+    } catch (err) {
+      console.error("Error adding/updating item:", err);
     }
-    setName("");
-    setQuantity(0);
-    setDescription("");
-    fetchItems();
   };
 
+  // Edit item
   const handleEdit = (item: Item) => {
     setEditingId(item.id);
     setName(item.name);
@@ -1215,21 +1224,42 @@ export default function App() {
     setDescription(item.description || "");
   };
 
+  // Delete item
   const handleDelete = async (id: number) => {
-    await fetch(`${API_URL}?id=${id}`, { method: "DELETE" });
-    fetchItems();
+    try {
+      await fetch(`${API_URL}?id=${id}`, { method: "DELETE" });
+      fetchItems();
+    } catch (err) {
+      console.error("Error deleting item:", err);
+    }
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: "auto" }}>
+    <div>
       <h1>Inventory</h1>
       <form onSubmit={handleSubmit}>
-        <input placeholder="Name" value={name} onChange={e => setName(e.target.value)} required />
-        <input type="number" placeholder="Quantity" value={quantity} onChange={e => setQuantity(Number(e.target.value))} required />
-        <input placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
+        <input
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <input
+          type="number"
+          placeholder="Quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(Number(e.target.value))}
+          required
+        />
+        <input
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
         <button type="submit">{editingId ? "Update" : "Add"}</button>
       </form>
-      <table border={1} cellPadding={5} style={{ marginTop: 20, width: "100%" }}>
+
+      <table>
         <thead>
           <tr>
             <th>Name</th>
@@ -1239,14 +1269,18 @@ export default function App() {
           </tr>
         </thead>
         <tbody>
-          {items.map(item => (
+          {items.map((item) => (
             <tr key={item.id}>
               <td>{item.name}</td>
               <td>{item.quantity}</td>
               <td>{item.description}</td>
               <td>
-                <button onClick={() => handleEdit(item)}>Edit</button>
-                <button onClick={() => handleDelete(item.id)}>Delete</button>
+                <button className="edit" onClick={() => handleEdit(item)}>
+                  Edit
+                </button>
+                <button className="delete" onClick={() => handleDelete(item.id)}>
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
