@@ -987,7 +987,7 @@
 import { useState, useEffect, FormEvent } from "react";
 import "./App.css";
 
-const API_URL = "http://localhost:4000/api/items";
+const API_URL = "https://crud-final-tunacaos-projects.vercel.app/api/items";
 
 interface Item {
   id: number;
