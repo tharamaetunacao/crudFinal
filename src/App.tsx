@@ -1165,7 +1165,7 @@ interface Item {
   description: string;
 }
 
-const API_URL = "https://crud-final-nu.vercel.app/api/items"; // replace with your Vercel API URL
+const API_URL = "https://tunacao-crudfinal.vercel.app/api/items"; // replace with your Vercel API URL
 
 export default function App() {
   const [items, setItems] = useState<Item[]>([]);
